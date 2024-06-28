@@ -1,18 +1,16 @@
-import crypto from 'crypto';
+import CryptoJS from 'crypto-js';
 
-const ENCRYPTION_KEY = process.env.NEXT_PUBLIC_ENCRYPTION_KEY as string; 
+const secretKey = "MySecretKey12345";
 
-const decryptData = (encryptedData:  string) => {
-    console.log(ENCRYPTION_KEY)
+const decryptData = (encryptedData: string) => {
     try {
-        const decipher = crypto.createDecipheriv('aes-192-cbc', Buffer.from(ENCRYPTION_KEY), Buffer.alloc(16));
-        let decrypted = decipher.update(encryptedData, 'hex', 'utf8');
-        decrypted += decipher.final('utf8');
-        return decrypted;
-      } catch (error) {
+        const bytes = CryptoJS.AES.decrypt(encryptedData, secretKey);
+        const decryptedText = bytes.toString(CryptoJS.enc.Utf8);
+        return JSON.parse(decryptedText); 
+    } catch (error) {
         console.error('Error decrypting data:', error);
         throw error;
-      }
-};
+    }
+}
 
 export default decryptData;

@@ -1,4 +1,4 @@
-package edu.ukma.products;
+package edu.ukma.products.config;
 
 import edu.ukma.products.model.Product;
 import edu.ukma.products.model.ProductGroup;

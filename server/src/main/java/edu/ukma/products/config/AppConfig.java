@@ -1,4 +1,4 @@
-package edu.ukma.products;
+package edu.ukma.products.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

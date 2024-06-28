@@ -39,7 +39,13 @@ const Page = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get(`${API_URL}/api/products`);
+      const token = localStorage.getItem('token');
+      console.log(token);
+      const response = await axios.get(`${API_URL}/api/products`, {
+        headers: {
+            'Authorization': token
+        }
+    });
       //console.log(response);
       //const encryptedData = response.data;
       //const decryptedData = decryptData(encryptedData);

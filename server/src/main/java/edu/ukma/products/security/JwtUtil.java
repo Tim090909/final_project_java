@@ -1,4 +1,4 @@
-package edu.ukma.products;
+package edu.ukma.products.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

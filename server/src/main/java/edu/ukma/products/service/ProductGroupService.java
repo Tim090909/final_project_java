@@ -75,7 +75,27 @@ public class ProductGroupService {
         return productGroup;
     }
 
+    private boolean isTitleUnique(String title) {
+        String query = "SELECT COUNT(*) FROM product_group WHERE title = ?";
+        try (Connection con = DriverManager.getConnection(URL);
+             PreparedStatement pst = con.prepareStatement(query)) {
+            pst.setString(1, title);
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) == 0;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     public ProductGroup saveProductGroup(ProductGroup group) {
+        if (!isTitleUnique(group.getTitle())) {
+            throw new IllegalArgumentException("Group title must be unique");
+        }
+
         String query = "INSERT INTO product_group (title, description) VALUES (?, ?)";
         try (Connection con = DriverManager.getConnection(URL);
              PreparedStatement pst = con.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
@@ -97,6 +117,13 @@ public class ProductGroupService {
     }
 
     public ProductGroup updateProductGroup(int id, ProductGroup group) {
+        ProductGroup originalGroup = findProductGroupById(id);
+
+        if (!group.getTitle().equals(originalGroup.getTitle()) &&
+                !isTitleUnique(group.getTitle())) {
+            throw new IllegalArgumentException("Group title must be unique");
+        }
+
         String query = "UPDATE product_group SET title = ?, description = ? WHERE id = ?";
         try (Connection con = DriverManager.getConnection(URL);
              PreparedStatement pst = con.prepareStatement(query)) {
@@ -113,7 +140,6 @@ public class ProductGroupService {
     }
 
     public void deleteProductGroup(int id) {
-        // Delete products first
         String deleteProductsQuery = "DELETE FROM product WHERE group_id = ?";
         try (Connection con = DriverManager.getConnection(URL);
              PreparedStatement pst = con.prepareStatement(deleteProductsQuery)) {
@@ -124,7 +150,6 @@ public class ProductGroupService {
             e.printStackTrace();
         }
 
-        // Delete the group
         String deleteGroupQuery = "DELETE FROM product_group WHERE id = ?";
         try (Connection con = DriverManager.getConnection(URL);
              PreparedStatement pst = con.prepareStatement(deleteGroupQuery)) {

@@ -1,6 +1,6 @@
 package edu.ukma.products.controller;
 
-import edu.ukma.products.JwtUtil;
+import edu.ukma.products.security.JwtUtil;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,6 +18,10 @@ public class AuthController {
     private static final String PASSWORD = "password";
 
     private final Map<String, String> loggedInUsers;
+
+    public boolean isValidToken(String token) {
+        return loggedInUsers.containsKey(token);
+    }
 
     private final JwtUtil jwtUtil;
 

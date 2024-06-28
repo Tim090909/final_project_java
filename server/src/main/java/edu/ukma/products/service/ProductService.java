@@ -109,7 +109,27 @@ public class ProductService {
         return product;
     }
 
+    private boolean isTitleUnique(String title) {
+        String query = "SELECT COUNT(*) FROM product WHERE title = ?";
+        try (Connection con = DriverManager.getConnection(URL);
+             PreparedStatement pst = con.prepareStatement(query)) {
+            pst.setString(1, title);
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) == 0;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     public Product saveProduct(Product product) {
+        if (!isTitleUnique(product.getTitle())) {
+            throw new IllegalArgumentException("Product title must be unique");
+        }
+
         String query = "INSERT INTO product (title, amount, price, manufacturer, description, group_id) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection con = DriverManager.getConnection(URL);
              PreparedStatement pst = con.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
@@ -135,6 +155,13 @@ public class ProductService {
     }
 
     public Product updateProduct(int id, Product productDetails) {
+        Product originalProduct = findProductById(id);
+
+        if (!productDetails.getTitle().equals(originalProduct.getTitle()) &&
+                !isTitleUnique(productDetails.getTitle())) {
+            throw new IllegalArgumentException("Product title must be unique");
+        }
+
         String query = "UPDATE product SET title = ?, amount = ?, price = ?, manufacturer = ?, description = ?, group_id = ? WHERE id = ?";
         try (Connection con = DriverManager.getConnection(URL);
              PreparedStatement pst = con.prepareStatement(query)) {
@@ -153,7 +180,6 @@ public class ProductService {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
         return null;
     }
 
